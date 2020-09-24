@@ -20,51 +20,55 @@ ledPWM = GPIO.PWM(ledPin, 100)
 ledPWM.start(0)
 pumpPWM.start(0)
 
-## Sensing
+# Sensing
 water_sense = 0 # Initial Water Sensor Value: False
-running=True
-
 w_time_hr = 8 # Set Scheduler to Start at 8 AM
 watering_complete = False #initial value, may not be req'd
-print("Scheduler Started On "+str(time.ctime())"!")
+
+# Pump Actions
+def start_pump():
+    pumpPWM.ChangeDutyCycle(100)
+    ledPWM.ChangeDutyCycle(100)
+    print("Starting Water Pump at "+str(time.ctime())+"!")  
+
+def stop_pump():
+    pumpPWM.ChangeDutyCycle(0) # Shutoff Pump
+    ledPWM.ChangeDutyCycle(0) # Turn On Status LED   
+    end_time = time.time() # Capture End Time
+    total_duration = end_time - start_time
+    print("Total Pumping Time = " + str(round(total_duration)) + " seconds")
 
 try:
     while running:
-        # Scheduler Time Check
         c_time=time.localtime() #Get Current Time
-        c_time.tm_hour = 8 #Force Start NOW
+        w_time_hr = c_time.tm_hour # FORCE START FOR TESTING
         if c_time.tm_hour == w_time_hr:
-            start_time = time.time()   
-            pumpPWM.ChangeDutyCycle(100)
-            ledPWM.ChangeDutyCycle(0)
-            print("Starting Water Pump at "+str(time.ctime())+"!")
+            print("Watering Started On "+str(time.ctime())"!")
+            start_time = time.time()  
+            start_pump()
             while watering_complete == False:
                 water_sense = GPIO.input(h2oPin) # Check Water Sensor Status
-                if (time.time() - start_time) > 30 and water_sense == 1: # Minimum Pump Runtime: 30 seconds and Sensor Check
-                    pumpPWM.ChangeDutyCycle(0) # Shutoff Pump
-                    ledPWM.ChangeDutyCycle(100) # Turn On Status LED   
+                if (time.time() - start_time) > 3 and water_sense == 1: # Minimum Pump Runtime: 3 seconds and Sensor Check
+                    stop_pump()
                     watering_complete = True
-                    end_time = time.time() # Capture End Time
-                    total_duration = end_time - start_time
                     print("Water Detected! Pump Off")
-                    print("Total Pumping Time = " + str(round(total_duration)) + " seconds")
                 elif (time.time() - start_time) > 60:
-                    pumpPWM.ChangeDutyCycle(0)
-                    ledPWM.ChangeDutyCycle(100)
+                    stop_pump()
                     watering_complete = True
-                    end_time=time.time()
-                    total_duration = end_time - start_time
-                    print("Pump Time Maxed Out, Shutting Off Pump!")  
-                    print("Total Pumping Time = " + str(round(total_duration)) + " seconds")               
+                    print("Pump Time Maxed Out, Shutting Off Pump!")              
                 else:
                     print("No Water Detected. Continue Pumping")
+                    time.sleep(1)
+            time.sleep(3600)
         else:
-            time.sleep(5)
+            time.sleep(60)
             print("It's not time to water yet. Watering scheduled for hour #" + w_time_hr + " of 24")
-        
+
 except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
     print("Program Interrupted By Keyboard")
-    running=False
+    stop_pump()
     GPIO.cleanup()
     sys.exit()
 
+
+#w_time_hr = c_time.tm_hour # FOR TESTING: ***Force Start NOW***

@@ -24,6 +24,7 @@ pumpPWM.start(0)
 water_sense = 0 # Initial Water Sensor Value: False
 w_time_hr = 8 # Set Scheduler to Start at 8 AM
 watering_complete = False #initial value, may not be req'd
+running = True
 
 # Pump Actions
 def start_pump():
@@ -69,6 +70,7 @@ try:
 except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
     print("Program Interrupted By Keyboard")
     stop_pump()
+    running = False
     GPIO.cleanup()
     sys.exit()
 

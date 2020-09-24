@@ -37,7 +37,7 @@ try:
             start_time = time.time()   
             pumpPWM.ChangeDutyCycle(100)
             ledPWM.ChangeDutyCycle(0)
-            print("Starting Water Pump at "+str(time.ctime())"!")
+            print("Starting Water Pump at "+str(time.ctime())+"!")
             while watering_complete == False:
                 water_sense = GPIO.input(h2oPin) # Check Water Sensor Status
                 if (time.time() - start_time) > 30 and water_sense == 1: # Minimum Pump Runtime: 30 seconds and Sensor Check

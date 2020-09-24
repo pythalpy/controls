@@ -29,8 +29,7 @@ running = True
 # Pump Actions
 def start_pump():
     pumpPWM.ChangeDutyCycle(100)
-    ledPWM.ChangeDutyCycle(100)
-    print(str(time.ctime())+ ": " + "Starting Water Pump at!")  
+    print(str(time.ctime())+ ": " + "Starting Water Pump!")  
 
 def stop_pump():
     pumpPWM.ChangeDutyCycle(0) # Shutoff Pump
@@ -38,6 +37,20 @@ def stop_pump():
     end_time = time.time() # Capture End Time
     total_duration = end_time - start_time
     print(str(time.ctime())+ ": " +"Total Pumping Time = " + str(round(total_duration)) + " seconds")
+
+# LED Flashing
+def single_flash_led(sleep_time):
+    duty_high = 80
+    duty_low = 0
+
+    ledPWM.ChangeDutyCycle(duty_high)
+    time.sleep(sleep_time) 
+    ledPWM.ChangeDutyCycle(duty_low)
+    time.sleep(sleep_time)
+
+def multi_flash_led(n_flashes, sleep_time):
+    for _ in range (n_flashes):
+        single_flash_led(sleep_time)
 
 try:
     while running:
@@ -47,24 +60,28 @@ try:
             print(str(time.ctime())+ ": " +"Watering Started!")
             start_time = time.time()  
             start_pump()
+            multi_flash_led(2, 0.1)
             while watering_complete == False:
                 water_sense = GPIO.input(h2oPin) # Check Water Sensor Status
                 if (time.time() - start_time) > 3 and water_sense == 1: # Minimum Pump Runtime: 3 seconds and Sensor Check
                     stop_pump()
                     watering_complete = True
                     print(str(time.ctime())+ ": " + "Water Detected! Pump Off")
-                    time.sleep(1)
+                    multi_flash_led(4, 0.1)
                 elif (time.time() - start_time) > 10:
                     stop_pump()
                     watering_complete = True
                     print(str(time.ctime())+ ": " + "Pump Time Maxed Out, Shutting Off Pump!")
-                    time.sleep(1)              
+                    multi_flash_led(5, 0.1)             
                 else:
                     print(str(time.ctime())+ ": " + "No Water Detected. Continue Pumping")
+                    multi_flash_led(1, 0.1)
                     time.sleep(1)
+            multi_flash_led(10, 0.1)
             time.sleep(3600)
         else:
             time.sleep(60)
+            multi_flash_led(3, 1)
             print("It's not time to water yet. Watering scheduled for hour #" + w_time_hr + " of 24")
 
 except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:

@@ -29,21 +29,21 @@ watering_complete = False #initial value, may not be req'd
 def start_pump():
     pumpPWM.ChangeDutyCycle(100)
     ledPWM.ChangeDutyCycle(100)
-    print("Starting Water Pump at "+str(time.ctime())+"!")  
+    print(str(time.ctime())+ ": " + "Starting Water Pump at!")  
 
 def stop_pump():
     pumpPWM.ChangeDutyCycle(0) # Shutoff Pump
     ledPWM.ChangeDutyCycle(0) # Turn On Status LED   
     end_time = time.time() # Capture End Time
     total_duration = end_time - start_time
-    print("Total Pumping Time = " + str(round(total_duration)) + " seconds")
+    print(str(time.ctime())+ ": " +"Total Pumping Time = " + str(round(total_duration)) + " seconds")
 
 try:
     while running:
         c_time=time.localtime() #Get Current Time
         w_time_hr = c_time.tm_hour # FORCE START FOR TESTING
         if c_time.tm_hour == w_time_hr:
-            print("Watering Started On "+str(time.ctime())"!")
+            print(str(time.ctime())+ ": " +"Watering Started!")
             start_time = time.time()  
             start_pump()
             while watering_complete == False:
@@ -51,13 +51,15 @@ try:
                 if (time.time() - start_time) > 3 and water_sense == 1: # Minimum Pump Runtime: 3 seconds and Sensor Check
                     stop_pump()
                     watering_complete = True
-                    print("Water Detected! Pump Off")
-                elif (time.time() - start_time) > 60:
+                    print(str(time.ctime())+ ": " + "Water Detected! Pump Off")
+                    time.sleep(1)
+                elif (time.time() - start_time) > 10:
                     stop_pump()
                     watering_complete = True
-                    print("Pump Time Maxed Out, Shutting Off Pump!")              
+                    print(str(time.ctime())+ ": " + "Pump Time Maxed Out, Shutting Off Pump!")
+                    time.sleep(1)              
                 else:
-                    print("No Water Detected. Continue Pumping")
+                    print(str(time.ctime())+ ": " + "No Water Detected. Continue Pumping")
                     time.sleep(1)
             time.sleep(3600)
         else:

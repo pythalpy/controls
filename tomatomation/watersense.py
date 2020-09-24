@@ -24,7 +24,7 @@ pumpPWM.start(0)
 water_sense = 0 # Initial Water Sensor Value: False
 running=True
 
-w_time_hr = 8 # Manually Enabling Scheduler for Testing Purposes
+w_time_hr = 8 # Set Scheduler to Start at 8 AM
 watering_complete = False #initial value, may not be req'd
 print("Scheduler Started On "+str(time.ctime())"!")
 
@@ -32,6 +32,7 @@ try:
     while running:
         # Scheduler Time Check
         c_time=time.localtime() #Get Current Time
+        c_time.tm_hour = 8 #Force Start NOW
         if c_time.tm_hour == w_time_hr:
             start_time = time.time()   
             pumpPWM.ChangeDutyCycle(100)

@@ -77,7 +77,7 @@ try:
                     print(str(time.ctime())+ ": " + "No Water Detected. Continue Pumping")
                     multi_flash_led(1, 0.1)
                     time.sleep(1)
-            multi_flash_led(10, 0.1)
+            multi_flash_led(5, 1)
             time.sleep(3600)
         else:
             time.sleep(60)

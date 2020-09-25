@@ -68,7 +68,7 @@ try:
                     watering_complete = True
                     print(str(time.ctime())+ ": " + "Water Detected! Pump Off")
                     multi_flash_led(4, 0.1)
-                elif (time.time() - start_time) > 10:
+                elif (time.time() - start_time) > 240: # 4 Minute Max Runtime
                     stop_pump()
                     watering_complete = True
                     print(str(time.ctime())+ ": " + "Pump Time Maxed Out, Shutting Off Pump!")

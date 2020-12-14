@@ -1,5 +1,6 @@
 # External Module Imports
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
+from RPI import GPIO
 import time
 import sys
 
@@ -7,12 +8,16 @@ import sys
 h2oPin = 14 # BCM Pin 14, Board Pin 8
 pumpPin = 21 # BCM Pin 21, Board Pin 40
 ledPin = 15 # BCM
+valvePin1 = 4
+valvePin2 = 17
 
 # Pin Setup:
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(h2oPin, GPIO.IN)
 GPIO.setup(ledPin, GPIO.OUT)
 GPIO.setup(pumpPin, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(valvePin1, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(valvePin2, GPIO.OUT, initial=GPIO.LOW)
 
 # PWM Initialization (Pin, Frequency):
 pumpPWM = GPIO.PWM(pumpPin, 25)
@@ -30,16 +35,32 @@ running = True
 
 
 def start_pump():
+    open_valve()
+    time.sleep(2)
     pumpPWM.ChangeDutyCycle(100)
     print(str(time.ctime())+ ": " + "Starting Water Pump!")  
 
 
 def stop_pump():
+    close_valve()
+    time.sleep(2)
     pumpPWM.ChangeDutyCycle(0) # Shutoff Pump
     ledPWM.ChangeDutyCycle(0) # Turn On Status LED   
     end_time = time.time() # Capture End Time
     total_duration = end_time - start_time
     print(str(time.ctime())+ ": " + "Total Pumping Time = " + str(round(total_duration)) + " seconds")
+
+
+def open_valve():
+    GPIO.output(valvePin1, GPIO.High) # +4.5V 30ms Pulse
+    time.sleep(0.03)
+    GPIO.output(valvePin1, GPIO.Low)
+
+    
+def close_valve():
+    GPIO.output(valvePin2, GPIO.High) # -4.5V 30ms Pulse
+    time.sleep(0.03)
+    GPIO.output(valvePin2, GPIO.Low)
 
 
 # LED Flashing
